@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="android_10-0.2.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/rosjava_audio_module/build/intermediates/exploded-aar/org.ros.android_core/android_10/0.2.0/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/rosjava_audio_module/build/intermediates/exploded-aar/org.ros.android_core/android_10/0.2.0/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
