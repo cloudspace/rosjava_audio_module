@@ -35,13 +35,21 @@ import java.nio.ByteOrder;
 public class AudioPublisher extends AbstractNodeMain {
 	private static final String LOG_TAG = "ROS AUDIO";
 	String topicName;
-
+	boolean userPaused = false;
 	public AudioPublisher(String topicName) {
 		this.topicName = topicName;
 	}
 
 	AudioRecord audioRecord;
 	public static final int SAMPLE_RATE = 8000;
+
+	public void pause() {
+		userPaused = true;
+	}
+
+	public void unPause() {
+		userPaused = false;
+	}
 
 	@Override
 	public GraphName getDefaultNodeName() {
@@ -82,15 +90,17 @@ public class AudioPublisher extends AbstractNodeMain {
 			}
 			@Override
 			protected void loop() throws InterruptedException {
+				if (!userPaused) {
 				try {
 					audioRecord.read(buffer, 0, bufferSize);
 				} catch (Throwable t) {
 					Log.e("Error", "Read write failed");
 					t.printStackTrace();
 				}
-				audio_common_msgs.AudioData data = publisher.newMessage();
-				data.setData(ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, buffer, 0, buffer.length));
-				publisher.publish(data);
+					audio_common_msgs.AudioData data = publisher.newMessage();
+					data.setData(ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, buffer, 0, buffer.length));
+					publisher.publish(data);
+				}
 			}
 		});
 	}

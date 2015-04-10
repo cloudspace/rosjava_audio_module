@@ -35,6 +35,18 @@ public class AudioSubscriber extends AbstractNodeMain {
         audioTrack.stop();
     }
 
+    public void pause() {
+        if (audioTrack != null) {
+            audioTrack.pause();
+        }
+    }
+
+    public void play() {
+        if (audioTrack != null) {
+            audioTrack.play();
+        }
+    }
+
     @Override
     public void onStart(ConnectedNode connectedNode) {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
@@ -46,7 +58,6 @@ public class AudioSubscriber extends AbstractNodeMain {
                 AudioFormat.CHANNEL_IN_STEREO,
                 MediaRecorder.AudioEncoder.AMR_NB, bufferSize,
                 AudioTrack.MODE_STREAM);
-
 
         audioTrack.setPlaybackRate(SAMPLE_RATE);
         Subscriber<AudioData> subscriber = connectedNode
