@@ -33,75 +33,77 @@ import java.nio.ByteOrder;
 
 
 public class AudioPublisher extends AbstractNodeMain {
-	private static final String LOG_TAG = "ROS AUDIO";
-	String topicName;
-	boolean userPaused = false;
-	public AudioPublisher(String topicName) {
-		this.topicName = topicName;
-	}
+    private static final String LOG_TAG = "ROS AUDIO";
+    String topicName;
+    boolean userPaused = false;
 
-	AudioRecord audioRecord;
-	public static final int SAMPLE_RATE = 8000;
+    public AudioPublisher(String topicName) {
+        this.topicName = topicName;
+    }
 
-	public void pause() {
-		userPaused = true;
-	}
+    AudioRecord audioRecord;
+    public static final int SAMPLE_RATE = 8000;
 
-	public void unPause() {
-		userPaused = false;
-	}
+    public void pause() {
+        userPaused = true;
+    }
 
-	@Override
-	public GraphName getDefaultNodeName() {
-		return GraphName.of("rosjava_audio/mic");
-	}
+    public void play() {
+        userPaused = false;
+    }
 
-	@Override
-	public void onShutdown(Node node){
-		if ( audioRecord != null ){
-			audioRecord.stop();
-		}
-	}
-	
-	@Override
-	public void onStart(final ConnectedNode connectedNode) {
+    @Override
+    public GraphName getDefaultNodeName() {
+        return GraphName.newAnonymous();
+    }
 
-		android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-		final int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
-				AudioFormat.CHANNEL_OUT_STEREO,
-				AudioFormat.ENCODING_PCM_16BIT);
+    @Override
+    public void onShutdown(Node node) {
+        if (audioRecord != null) {
+            audioRecord.stop();
+        }
+    }
 
+    @Override
+    public void onStart(final ConnectedNode connectedNode) {
 
-		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
-				AudioFormat.CHANNEL_OUT_STEREO,
-				MediaRecorder.AudioEncoder.AMR_NB, bufferSize);
+        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+        final int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
+                AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT);
 
 
-		audioRecord.startRecording();
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
+                AudioFormat.CHANNEL_OUT_STEREO,
+                MediaRecorder.AudioEncoder.AMR_NB, bufferSize);
 
-		final Publisher<audio_common_msgs.AudioData> publisher = connectedNode
-				.newPublisher(topicName, audio_common_msgs.AudioData._TYPE);
-		
-		connectedNode.executeCancellableLoop(new CancellableLoop() {
-			final byte[] buffer = new byte[bufferSize];
 
-			@Override
-			protected void setup() {
-			}
-			@Override
-			protected void loop() throws InterruptedException {
-				if (!userPaused) {
-				try {
-					audioRecord.read(buffer, 0, bufferSize);
-				} catch (Throwable t) {
-					Log.e("Error", "Read write failed");
-					t.printStackTrace();
-				}
-					audio_common_msgs.AudioData data = publisher.newMessage();
-					data.setData(ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, buffer, 0, buffer.length));
-					publisher.publish(data);
-				}
-			}
-		});
-	}
+        audioRecord.startRecording();
+
+        final Publisher<audio_common_msgs.AudioData> publisher = connectedNode
+                .newPublisher(topicName, audio_common_msgs.AudioData._TYPE);
+
+        connectedNode.executeCancellableLoop(new CancellableLoop() {
+            final byte[] buffer = new byte[bufferSize];
+
+            @Override
+            protected void setup() {
+            }
+
+            @Override
+            protected void loop() throws InterruptedException {
+                if (!userPaused) {
+                    try {
+                        audioRecord.read(buffer, 0, bufferSize);
+                    } catch (Throwable t) {
+                        Log.e("Error", "Read write failed");
+                        t.printStackTrace();
+                    }
+                    audio_common_msgs.AudioData data = publisher.newMessage();
+                    data.setData(ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, buffer, 0, buffer.length));
+                    publisher.publish(data);
+                }
+            }
+        });
+    }
 }

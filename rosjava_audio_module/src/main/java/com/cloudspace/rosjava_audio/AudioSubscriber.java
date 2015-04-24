@@ -27,7 +27,7 @@ public class AudioSubscriber extends AbstractNodeMain {
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.of("rosjava_audio/speaker");
+        return GraphName.newAnonymous();
     }
 
     @Override
@@ -63,7 +63,6 @@ public class AudioSubscriber extends AbstractNodeMain {
         Subscriber<AudioData> subscriber = connectedNode
                 .newSubscriber(topicName,
                         AudioData._TYPE);
-        audioTrack.play();
 
         subscriber
                 .addMessageListener(new MessageListener<AudioData>() {
