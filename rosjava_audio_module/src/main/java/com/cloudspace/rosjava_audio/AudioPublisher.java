@@ -54,7 +54,7 @@ public class AudioPublisher extends AbstractNodeMain {
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.newAnonymous();
+        return GraphName.of(topicName + "/audio_pub");
     }
 
     @Override
@@ -98,6 +98,7 @@ public class AudioPublisher extends AbstractNodeMain {
                     } catch (Throwable t) {
                         Log.e("Error", "Read write failed");
                         t.printStackTrace();
+                        return;
                     }
                     audio_common_msgs.AudioData data = publisher.newMessage();
                     data.setData(ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, buffer, 0, buffer.length));

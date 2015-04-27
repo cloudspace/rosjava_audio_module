@@ -27,7 +27,7 @@ public class AudioSubscriber extends AbstractNodeMain {
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.newAnonymous();
+        return GraphName.of(topicName + "/audio_sub");
     }
 
     @Override
