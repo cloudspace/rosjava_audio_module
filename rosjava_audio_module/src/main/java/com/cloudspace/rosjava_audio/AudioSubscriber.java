@@ -19,7 +19,7 @@ import audio_common_msgs.AudioData;
 public class AudioSubscriber extends AbstractNodeMain {
     AudioTrack audioTrack;
     public static final int SAMPLE_RATE = 8000;
-    String topicName;
+    public String topicName;
 
     public AudioSubscriber(String topicName) {
         this.topicName = topicName;

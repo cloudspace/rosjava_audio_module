@@ -34,7 +34,7 @@ import java.nio.ByteOrder;
 
 public class AudioPublisher extends AbstractNodeMain {
     private static final String LOG_TAG = "ROS AUDIO";
-    String topicName;
+    public String topicName;
     boolean userPaused = false;
 
     public AudioPublisher(String topicName) {
@@ -66,7 +66,6 @@ public class AudioPublisher extends AbstractNodeMain {
 
     @Override
     public void onStart(final ConnectedNode connectedNode) {
-
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
         final int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
                 AudioFormat.CHANNEL_OUT_STEREO,
