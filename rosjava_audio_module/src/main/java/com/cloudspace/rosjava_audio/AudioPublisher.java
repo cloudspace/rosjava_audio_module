@@ -19,6 +19,7 @@ package com.cloudspace.rosjava_audio;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.audiofx.NoiseSuppressor;
 import android.util.Log;
 
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -71,11 +72,14 @@ public class AudioPublisher extends AbstractNodeMain {
                 AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
 
-
-        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION, SAMPLE_RATE,
                 AudioFormat.CHANNEL_OUT_STEREO,
-                MediaRecorder.AudioEncoder.AMR_NB, bufferSize);
+                AudioFormat.ENCODING_PCM_16BIT, bufferSize);
 
+        if (NoiseSuppressor.isAvailable()) {
+            NoiseSuppressor ns = NoiseSuppressor.create(audioRecord.getAudioSessionId());
+            ns.setEnabled(true);
+        }
 
         audioRecord.startRecording();
 

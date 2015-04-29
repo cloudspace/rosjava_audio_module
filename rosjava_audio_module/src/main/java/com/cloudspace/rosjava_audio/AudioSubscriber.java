@@ -5,7 +5,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
-import android.media.MediaRecorder;
+import android.media.audiofx.NoiseSuppressor;
 
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
@@ -20,9 +20,11 @@ public class AudioSubscriber extends AbstractNodeMain {
     AudioTrack audioTrack;
     public static final int SAMPLE_RATE = 8000;
     public String topicName;
+    AudioManager audioManager;
 
-    public AudioSubscriber(String topicName) {
+    public AudioSubscriber(String topicName, AudioManager audioManager) {
         this.topicName = topicName;
+        this.audioManager = audioManager;
     }
 
     @Override
@@ -49,17 +51,25 @@ public class AudioSubscriber extends AbstractNodeMain {
 
     @Override
     public void onStart(ConnectedNode connectedNode) {
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+        audioManager.setSpeakerphoneOn(true);
+
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
         final int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
 
-        audioTrack = new AudioTrack(AudioManager.ROUTE_HEADSET, SAMPLE_RATE,
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_STEREO,
-                MediaRecorder.AudioEncoder.AMR_NB, bufferSize,
+                AudioFormat.ENCODING_PCM_16BIT, bufferSize,
                 AudioTrack.MODE_STREAM);
-
         audioTrack.setPlaybackRate(SAMPLE_RATE);
+
+        if (NoiseSuppressor.isAvailable()) {
+            NoiseSuppressor ns = NoiseSuppressor.create(audioTrack.getAudioSessionId());
+            ns.setEnabled(true);
+        }
+
         Subscriber<AudioData> subscriber = connectedNode
                 .newSubscriber(topicName,
                         AudioData._TYPE);
