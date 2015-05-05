@@ -65,9 +65,11 @@ public class AudioSubscriber extends AbstractNodeMain {
                 AudioTrack.MODE_STREAM);
         audioTrack.setPlaybackRate(SAMPLE_RATE);
 
-        if (NoiseSuppressor.isAvailable()) {
+        if (NoiseSuppressor.isAvailable() && audioTrack != null) {
             NoiseSuppressor ns = NoiseSuppressor.create(audioTrack.getAudioSessionId());
-            ns.setEnabled(true);
+            if (ns != null) {
+                ns.setEnabled(true);
+            }
         }
 
         Subscriber<AudioData> subscriber = connectedNode
