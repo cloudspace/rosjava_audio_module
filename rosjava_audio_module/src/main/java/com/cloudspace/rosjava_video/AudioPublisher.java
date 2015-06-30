@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.cloudspace.rosjava_audio;
+package com.cloudspace.rosjava_video;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
